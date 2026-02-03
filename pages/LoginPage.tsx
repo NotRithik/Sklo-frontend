@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
+import { API_BASE } from '../services/api';
 
 const LoginPage = () => {
     const [searchParams] = useSearchParams();
@@ -71,7 +72,7 @@ const LoginPage = () => {
                 params.append('username', formData.username);
                 params.append('password', formData.password);
 
-                const res = await fetch('http://localhost:8000/api/token', {
+                const res = await fetch(`${API_BASE}/api/token`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: params
@@ -82,7 +83,7 @@ const LoginPage = () => {
                 const data = await res.json();
 
                 // Get User Details
-                const userRes = await fetch('http://localhost:8000/api/me', {
+                const userRes = await fetch(`${API_BASE}/api/me`, {
                     headers: { Authorization: `Bearer ${data.access_token}` }
                 });
                 const userData = await userRes.json();
@@ -92,7 +93,7 @@ const LoginPage = () => {
 
             } else if (mode === 'signup') {
                 // Signup Logic
-                const res = await fetch('http://localhost:8000/api/register', {
+                const res = await fetch(`${API_BASE}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -116,7 +117,7 @@ const LoginPage = () => {
                 loginParams.append('username', formData.username);
                 loginParams.append('password', formData.password);
 
-                const loginRes = await fetch('http://localhost:8000/api/token', {
+                const loginRes = await fetch(`${API_BASE}/api/token`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: loginParams
@@ -129,7 +130,7 @@ const LoginPage = () => {
                 }
 
                 const loginData = await loginRes.json();
-                const userRes = await fetch('http://localhost:8000/api/me', {
+                const userRes = await fetch(`${API_BASE}/api/me`, {
                     headers: { Authorization: `Bearer ${loginData.access_token}` }
                 });
                 const userData = await userRes.json();
@@ -139,7 +140,7 @@ const LoginPage = () => {
 
             } else if (mode === 'forgot') {
                 // Forgot Password Logic (unchanged)
-                const res = await fetch('http://localhost:8000/api/forgot-password', {
+                const res = await fetch(`${API_BASE}/api/forgot-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: formData.email })
@@ -155,7 +156,7 @@ const LoginPage = () => {
 
             } else if (mode === 'reset') {
                 // Reset Password Logic (unchanged)
-                const res = await fetch('http://localhost:8000/api/reset-password', {
+                const res = await fetch(`${API_BASE}/api/reset-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -195,7 +196,7 @@ const LoginPage = () => {
         setError('');
 
         try {
-            const res = await fetch('http://localhost:8000/api/google-login', {
+            const res = await fetch(`${API_BASE}/api/google-login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -212,7 +213,7 @@ const LoginPage = () => {
             const data = await res.json();
 
             // Get User Details
-            const userRes = await fetch('http://localhost:8000/api/me', {
+            const userRes = await fetch(`${API_BASE}/api/me`, {
                 headers: { Authorization: `Bearer ${data.access_token}` }
             });
             const userData = await userRes.json();
@@ -472,7 +473,7 @@ const LoginPage = () => {
                                     <GoogleLogin
                                         onSuccess={async (credentialResponse) => {
                                             try {
-                                                const res = await fetch('http://localhost:8000/api/google-login', {
+                                                const res = await fetch(`${API_BASE}/api/google-login`, {
                                                     method: 'POST',
                                                     headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({ token: credentialResponse.credential })
@@ -488,7 +489,7 @@ const LoginPage = () => {
                                                 if (!res.ok) throw new Error("Google Login Failed");
 
                                                 const data = await res.json();
-                                                const userRes = await fetch('http://localhost:8000/api/me', {
+                                                const userRes = await fetch(`${API_BASE}/api/me`, {
                                                     headers: { Authorization: `Bearer ${data.access_token}` }
                                                 });
                                                 const userData = await userRes.json();

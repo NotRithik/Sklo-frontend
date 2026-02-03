@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Building, Loader2, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../services/api';
 
 interface CreateOrgModalProps {
     isOpen: boolean;
@@ -22,7 +23,7 @@ export const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose 
             setLoading(true);
             setError('');
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:8000/api/organizations', {
+            const res = await fetch(`${API_BASE}/api/organizations`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

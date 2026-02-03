@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConfirmDialog } from './ConfirmDialog';
+import { API_BASE } from '../services/api';
 
 interface Organization {
     id: string;
@@ -36,7 +37,7 @@ interface OrganizationSettingsProps {
     authToken: string;
 }
 
-const API_BASE = 'http://localhost:8000';
+// API_BASE imported from services/api
 
 const fetchWithAuth = async (url: string, token: string, options: RequestInit = {}) => {
     return fetch(`${API_BASE}${url}`, {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, createContext, useContext, ReactNode } from 'react';
+import { API_BASE } from '../services/api';
 import { Bot, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -44,7 +45,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children, auth
         }
 
         try {
-            const res = await fetch('http://localhost:8000/api/chatbots', {
+            const res = await fetch(`${API_BASE}/api/chatbots`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             if (res.ok) {
@@ -163,8 +164,8 @@ export const ChatbotSelector: React.FC = () => {
                                         }`}
                                 >
                                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedChatbot?.id === chatbot.id
-                                            ? 'bg-[#FF4D00] text-white'
-                                            : 'bg-gray-100 text-gray-500'
+                                        ? 'bg-[#FF4D00] text-white'
+                                        : 'bg-gray-100 text-gray-500'
                                         }`}>
                                         <Bot size={14} />
                                     </div>

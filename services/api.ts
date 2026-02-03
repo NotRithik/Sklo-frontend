@@ -3,7 +3,7 @@
  * Provides authenticated fetch wrapper and common API utilities
  */
 
-const API_BASE = 'https://api.sklo.app';
+export const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 /**
  * Get stored auth token

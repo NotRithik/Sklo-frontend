@@ -35,6 +35,7 @@ import {
   FileCode
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MOCK_CONVERSATIONS, MOCK_FACTS, MOCK_CONSTRAINTS, MOCK_HISTORY } from '../mockData';
 import { Conversation, Fact, Constraint, HistoricalExample, ViewState, Message } from '../types';
@@ -805,7 +806,7 @@ const FactDatabaseView = ({
     if (!chatbotId) return;
     const factToAdd = { ...fact } as Fact;
     try {
-      await fetch(`http://localhost:8000/api/chatbots/${chatbotId}/facts`, {
+      await fetch(`${API_BASE}/api/chatbots/${chatbotId}/facts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -932,7 +933,7 @@ const SystemPromptView = ({
     if (!chatbotId) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/chatbots/${chatbotId}/system-prompt`, {
+      const res = await fetch(`${API_BASE}/api/chatbots/${chatbotId}/system-prompt`, {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       if (res.ok) {
@@ -950,7 +951,7 @@ const SystemPromptView = ({
     if (!chatbotId) return;
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/chatbots/${chatbotId}/system-prompt`, {
+      const res = await fetch(`${API_BASE}/api/chatbots/${chatbotId}/system-prompt`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1123,7 +1124,7 @@ const ConstraintsView = ({
     const constraintToAdd = { ...newConstraint, id, isActive: true } as Constraint;
 
     try {
-      await fetch(`http://localhost:8000/api/chatbots/${chatbotId}/constraints`, {
+      await fetch(`${API_BASE}/api/chatbots/${chatbotId}/constraints`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1311,7 +1312,7 @@ const HistoryView = ({
     };
 
     try {
-      await fetch(`http://localhost:8000/api/chatbots/${chatbotId}/history`, {
+      await fetch(`${API_BASE}/api/chatbots/${chatbotId}/history`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1754,7 +1755,7 @@ const AppContent = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [showCreateOrgModal, setShowCreateOrgModal] = useState(false);
 
-  const API_BASE = 'http://localhost:8000';
+  // API_BASE imported from services/api
   const authToken = localStorage.getItem('token') || '';
 
   // Fetch facts from chatbot-scoped backend
@@ -1840,7 +1841,8 @@ const AppContent = () => {
   useEffect(() => {
     if (!selectedChatbot?.id) return;
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/feed?chatbot_id=${selectedChatbot.id}`);
+    const wsBase = API_BASE.replace(/^http/, 'ws');
+    const ws = new WebSocket(`${wsBase}/ws/feed?chatbot_id=${selectedChatbot.id}`);
 
     ws.onopen = () => {
       setIsConnected(true);
@@ -1998,7 +2000,7 @@ const AppContent = () => {
   const handleDeleteFact = async (id: string) => {
     if (!selectedChatbot) return;
     try {
-      await fetch(`http://localhost:8000/api/chatbots/${selectedChatbot.id}/facts/${id}`, {
+      await fetch(`${API_BASE}/api/chatbots/${selectedChatbot.id}/facts/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${authToken}` }
       });
@@ -2011,7 +2013,7 @@ const AppContent = () => {
   const handleSaveHistory = async (updatedItem: HistoricalExample) => {
     if (!selectedChatbot) return;
     try {
-      await fetch(`http://localhost:8000/api/chatbots/${selectedChatbot.id}/history/${updatedItem.id}`, {
+      await fetch(`${API_BASE}/api/chatbots/${selectedChatbot.id}/history/${updatedItem.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -2029,7 +2031,7 @@ const AppContent = () => {
   const handleDeleteHistory = async (id: string) => {
     if (!selectedChatbot) return;
     try {
-      await fetch(`http://localhost:8000/api/chatbots/${selectedChatbot.id}/history/${id}`, {
+      await fetch(`${API_BASE}/api/chatbots/${selectedChatbot.id}/history/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${authToken}` }
       });

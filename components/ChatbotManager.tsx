@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useChatbot } from './ChatbotSelector';
 import { ConfirmDialog } from './ConfirmDialog';
+import { API_BASE } from '../services/api';
 
 // Types
 interface Chatbot {
@@ -37,7 +38,7 @@ interface ChatbotManagerProps {
     selectedChatbotId?: string;
 }
 
-const API_BASE = 'http://localhost:8000';
+// API_BASE imported from services/api
 
 const fetchWithAuth = async (url: string, token: string, options: RequestInit = {}) => {
     return fetch(`${API_BASE}${url}`, {

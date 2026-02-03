@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_BASE } from '../services/api';
 
 interface Organization {
     id: string;
@@ -42,7 +43,7 @@ export const OrgProvider: React.FC<OrgProviderProps> = ({ children }) => {
         }
 
         try {
-            const res = await fetch('http://localhost:8000/api/me/organizations', {
+            const res = await fetch(`${API_BASE}/api/me/organizations`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 

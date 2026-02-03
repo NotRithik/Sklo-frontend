@@ -6,7 +6,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../../services/api'
 
 // Test user credentials - created fresh for each test run
 const testUser = {

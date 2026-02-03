@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE } from '../services/api';
 
 interface User {
     username: string;
@@ -46,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (token) {
             try {
                 // 1. Get User Profile (scoped to current org token)
-                const res = await fetch('http://localhost:8000/api/me', {
+                const res = await fetch(`${API_BASE}/api/me`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -55,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     setUser(userData);
 
                     // 2. Fetch Organizations List
-                    const orgRes = await fetch('http://localhost:8000/api/users/me/orgs', {
+                    const orgRes = await fetch(`${API_BASE}/api/users/me/orgs`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     if (orgRes.ok) {
@@ -80,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!token) return;
 
         try {
-            const res = await fetch('http://localhost:8000/api/auth/switch-org', {
+            const res = await fetch(`${API_BASE}/api/auth/switch-org`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -144,7 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Fetch organizations immediately after login
         try {
-            const orgRes = await fetch('http://localhost:8000/api/users/me/orgs', {
+            const orgRes = await fetch(`${API_BASE}/api/users/me/orgs`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (orgRes.ok) {
