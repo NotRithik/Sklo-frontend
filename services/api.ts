@@ -3,7 +3,7 @@
  * Provides authenticated fetch wrapper and common API utilities
  */
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'https://api.sklo.app';
 
 /**
  * Get stored auth token
