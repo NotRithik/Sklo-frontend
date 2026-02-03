@@ -1,0 +1,3 @@
+/**
+ * Test setup file for Vitest
+ */
