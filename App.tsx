@@ -30,7 +30,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const App = () => {
     // NOTE: Replace with your actual Client ID!
-    const clientId = "496875357222-45co1e0ck7mkcf83smk13q4ps7l52fuu.apps.googleusercontent.com";
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "496875357222-45co1e0ck7mkcf83smk13q4ps7l52fuu.apps.googleusercontent.com";
 
     return (
         <GoogleOAuthProvider clientId={clientId}>
