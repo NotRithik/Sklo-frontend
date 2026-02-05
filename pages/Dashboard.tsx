@@ -44,11 +44,17 @@ import { OrganizationSettings } from '../components/OrganizationSettings';
 import { ChatbotProvider, ChatbotSelector, useChatbot } from '../components/ChatbotSelector';
 import { OrgSwitcher } from '../components/OrgSwitcher';
 import { CreateOrgModal } from '../components/CreateOrgModal';
+import { FloatingChatWidget } from '../components/FloatingChatWidget';
 
 // --- Components ---
 
 // [FEATURE: NAVIGATION_HEADER]
-const MobileHeader = ({ currentView, setView, setShowCreateOrgModal }: { currentView: ViewState; setView: (v: ViewState) => void; setShowCreateOrgModal: (v: boolean) => void }) => {
+const MobileHeader = ({ currentView, setView, setShowCreateOrgModal, onCreateChatbot }: {
+  currentView: ViewState;
+  setView: (v: ViewState) => void;
+  setShowCreateOrgModal: (v: boolean) => void;
+  onCreateChatbot: () => void;
+}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Close mobile menu when view changes
@@ -57,8 +63,8 @@ const MobileHeader = ({ currentView, setView, setShowCreateOrgModal }: { current
   }, [currentView]);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#F9F8F6]/95 backdrop-blur-md border-b border-gray-200 h-[72px] lg:hidden">
-      <div className="max-w-[1920px] mx-auto px-4 lg:px-8 h-full flex items-center justify-between relative">
+    <header className="sticky top-0 z-50 bg-[#F9F8F6]/95 backdrop-blur-md border-b border-gray-200 py-4 lg:hidden relative">
+      <div className="max-w-[1920px] mx-auto px-4 lg:px-8 flex items-center justify-between">
 
         {/* 1. Logo Section */}
         <div className="flex items-center gap-3 w-[200px] flex-shrink-0">
@@ -77,21 +83,21 @@ const MobileHeader = ({ currentView, setView, setShowCreateOrgModal }: { current
             )}
           </button>
           <div className="w-8 h-8 bg-black flex items-center justify-center rounded-sm shadow-sm">
-            <span className="text-white font-serif font-bold text-lg select-none">V</span>
+            <span className="text-white font-serif font-bold text-lg select-none">S</span>
           </div>
-          <span className="text-xl font-serif tracking-tight text-gray-900 leading-none hidden sm:block">Veritas.</span>
+          <span className="text-xl font-serif tracking-tight text-gray-900 leading-none hidden sm:block">Sklo.</span>
         </div>
 
         {/* 2. Navigation - Centered & Clean */}
         <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8 flex-1">
           {[
-            { id: 'chatbots', label: 'Chatbots', icon: Bot },
-            { id: 'observer', label: 'Observer', icon: Eye },
-            { id: 'facts', label: 'Ledger', icon: Database },
-            { id: 'constraints', label: 'Policy', icon: Shield },
-            { id: 'prompt', label: 'Prompt', icon: FileCode },
-            { id: 'history', label: 'History', icon: Clock },
-            { id: 'settings', label: 'Settings', icon: Settings },
+            { id: 'chatbots', label: 'My Chatbots', icon: Bot },
+            { id: 'observer', label: 'Live Conversations', icon: Eye },
+            { id: 'facts', label: 'Knowledge Base', icon: Database },
+            { id: 'constraints', label: 'Rules', icon: Shield },
+            { id: 'prompt', label: 'Personality', icon: FileCode },
+            { id: 'history', label: 'Training', icon: Clock },
+            { id: 'settings', label: 'Team Settings', icon: Settings },
           ].map((item) => (
             <button
               key={item.id}
@@ -115,9 +121,12 @@ const MobileHeader = ({ currentView, setView, setShowCreateOrgModal }: { current
         </nav>
 
         {/* 3. Actions - Right Aligned */}
-        <div className="flex items-center justify-end gap-3 w-[200px] flex-shrink-0">
-          <div className="hidden md:block w-32">
-            <ChatbotSelector />
+        <div className="flex items-center justify-end gap-3 w-auto flex-shrink-0">
+          <div className="hidden md:block w-40">
+            <OrgSwitcher onCreateOrg={() => setShowCreateOrgModal(true)} />
+          </div>
+          <div className="hidden md:block w-40">
+            <ChatbotSelector onCreate={onCreateChatbot} />
           </div>
           <div className="hidden xl:flex items-center gap-2 text-[10px] font-mono text-gray-400 bg-white border border-gray-200 px-2 py-1.5 rounded-md">
             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
@@ -126,67 +135,81 @@ const MobileHeader = ({ currentView, setView, setShowCreateOrgModal }: { current
           <ProfileDropdown />
         </div>
 
-        {/* Mobile Menu Dropdown */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.2 }}
-              className="absolute top-[72px] left-0 w-full bg-white border-b border-gray-200 shadow-xl lg:hidden flex flex-col p-4 gap-2 z-40 max-h-[calc(100vh-72px)] overflow-y-auto"
-            >
-              <div className="md:hidden mb-4">
-                <ChatbotSelector />
-              </div>
-              <p className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest px-2 mb-1">Navigation</p>
-              {[
-                { id: 'chatbots', label: 'Chatbots', icon: Bot },
-                { id: 'observer', label: 'Observer', icon: Eye },
-                { id: 'facts', label: 'Fact Ledger', icon: Database },
-                { id: 'constraints', label: 'Constraints', icon: Shield },
-                { id: 'prompt', label: 'System Prompt', icon: FileCode },
-                { id: 'history', label: 'Context History', icon: Clock },
-                { id: 'settings', label: 'Settings', icon: Settings },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setView(item.id as ViewState)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors
+      </div>
+
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 w-full bg-white border-b border-gray-200 shadow-xl lg:hidden flex flex-col p-4 gap-2 z-40 max-h-[calc(100vh-80px)] overflow-y-auto"
+          >
+            <div className="md:hidden mb-4 space-y-2">
+              <OrgSwitcher onCreateOrg={() => setShowCreateOrgModal(true)} />
+              <ChatbotSelector onCreate={onCreateChatbot} />
+            </div>
+            <p className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest px-2 mb-1">Navigation</p>
+            {[
+              { id: 'chatbots', label: 'My Chatbots', icon: Bot },
+              { id: 'observer', label: 'Live Conversations', icon: Eye },
+              { id: 'facts', label: 'Knowledge Base', icon: Database },
+              { id: 'constraints', label: 'Rules', icon: Shield },
+              { id: 'prompt', label: 'Personality', icon: FileCode },
+              { id: 'history', label: 'Training', icon: Clock },
+              { id: 'settings', label: 'Team Settings', icon: Settings },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setView(item.id as ViewState)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors
                     ${currentView === item.id ? 'bg-gray-100 text-[#FF4D00] font-medium' : 'text-gray-600 hover:bg-gray-50'}
                   `}
-                >
-                  <item.icon size={18} />
-                  <span className="text-sm font-medium">{item.label}</span>
-                  {currentView === item.id && <ArrowRight size={14} className="ml-auto" />}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-      </div>
+              >
+                <item.icon size={18} />
+                <span className="text-sm font-medium">{item.label}</span>
+                {currentView === item.id && <ArrowRight size={14} className="ml-auto" />}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };
 
-const RightPanel = ({ currentView, setView, setShowCreateOrgModal }: { currentView: ViewState; setView: (v: ViewState) => void; setShowCreateOrgModal: (v: boolean) => void }) => (
+const RightPanel = ({ currentView, setView, setShowCreateOrgModal, onCreateChatbot }: {
+  currentView: ViewState;
+  setView: (v: ViewState) => void;
+  setShowCreateOrgModal: (v: boolean) => void;
+  onCreateChatbot: () => void;
+}) => (
   <aside className="hidden lg:flex flex-col w-[280px] bg-white border-l border-gray-200 h-screen sticky top-0 p-6 shadow-[inset_1px_0_0_0_gray-50]">
-    {/* Logo */}
-    <div className="flex items-center gap-3 mb-10">
-      <div className="w-8 h-8 bg-black flex items-center justify-center rounded-sm shadow-sm">
-        <span className="text-white font-serif font-bold text-lg select-none">V</span>
+    {/* Header: Logo and Profile */}
+    <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-black flex items-center justify-center rounded-sm shadow-sm">
+          <span className="text-white font-serif font-bold text-lg select-none">S</span>
+        </div>
+        <span className="text-xl font-serif tracking-tight text-gray-900 leading-none">Sklo.</span>
       </div>
-      <span className="text-xl font-serif tracking-tight text-gray-900 leading-none">Veritas.</span>
+      <ProfileDropdown />
     </div>
 
-    {/* Chatbot Selector */}
-    <div className="mb-8">
-      <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-2 block">Active Agent</label>
-      <ChatbotSelector />
-      <div className="mt-3 flex items-center gap-2 text-[10px] font-mono text-gray-400">
-        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-        SYSTEM ONLINE
+    {/* Selectors */}
+    <div className="mb-8 space-y-6">
+      <div>
+        <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-2 block">Chatbot</label>
+        <ChatbotSelector onCreate={onCreateChatbot} />
+      </div>
+
+      <div>
+        <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-2 block">Organization</label>
+        <div className="w-full relative">
+          <OrgSwitcher onCreateOrg={() => setShowCreateOrgModal(true)} />
+        </div>
       </div>
     </div>
 
@@ -194,13 +217,13 @@ const RightPanel = ({ currentView, setView, setShowCreateOrgModal }: { currentVi
     <nav className="flex-1 space-y-1">
       <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-2 block">Menu</label>
       {[
-        { id: 'chatbots', label: 'Chatbots', icon: Bot },
-        { id: 'observer', label: 'Observer', icon: Eye },
-        { id: 'facts', label: 'Ledger', icon: Database },
-        { id: 'constraints', label: 'Policy', icon: Shield },
-        { id: 'prompt', label: 'Prompt', icon: FileCode },
-        { id: 'history', label: 'History', icon: Clock },
-        { id: 'settings', label: 'Settings', icon: Settings },
+        { id: 'chatbots', label: 'My Chatbots', icon: Bot },
+        { id: 'observer', label: 'Live Conversations', icon: Eye },
+        { id: 'facts', label: 'Knowledge Base', icon: Database },
+        { id: 'constraints', label: 'Rules', icon: Shield },
+        { id: 'prompt', label: 'Personality', icon: FileCode },
+        { id: 'history', label: 'Training', icon: Clock },
+        { id: 'settings', label: 'Team Settings', icon: Settings },
       ].map((item) => (
         <button
           key={item.id}
@@ -217,16 +240,8 @@ const RightPanel = ({ currentView, setView, setShowCreateOrgModal }: { currentVi
     </nav>
 
     {/* Footer */}
-    <div className="pt-6 border-t border-gray-100 mt-auto space-y-4">
-      <div className="w-full">
-        <label className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest mb-2 block">Organization</label>
-        <div className="w-full relative">
-          <OrgSwitcher onCreateOrg={() => setShowCreateOrgModal(true)} />
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <ProfileDropdown />
+    <div className="pt-6 border-t border-gray-100 mt-auto">
+      <div className="flex items-center justify-end">
         <span className="text-[10px] text-gray-300 font-mono">v1.0.4</span>
       </div>
     </div>
@@ -268,7 +283,7 @@ const ProfileDropdown = () => {
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute left-0 bottom-full mb-2 w-60 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-[100]"
+            className="absolute right-0 top-full mt-2 w-60 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-[100]"
           >
             <div className="p-4 bg-gray-50 border-b border-gray-100">
               <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest mb-1">Authenticated Account</p>
@@ -595,10 +610,12 @@ const ObserverView = ({
     <div className="flex flex-col lg:grid lg:grid-cols-12 h-auto lg:h-full">
       {/* Sidebar: Active Sessions */}
       {/* [FEATURE: LIVE_SESSION_LIST] */}
-      <div className="w-full lg:col-span-3 border-r-0 lg:border-r border-b lg:border-b-0 border-gray-200 p-4 lg:p-8 h-64 lg:h-full overflow-y-auto">
-        <div className="flex justify-between items-baseline mb-4 lg:mb-8">
-          <h2 className="text-xl lg:text-2xl font-serif text-gray-900">Live Sessions</h2>
-          <span className="text-xs font-mono text-[#FF4D00]">LIVE FEED</span>
+      {/* Sidebar: Active Sessions */}
+      {/* [FEATURE: LIVE_SESSION_LIST] */}
+      <div className="w-full lg:col-span-4 border-r-0 lg:border-r border-b lg:border-b-0 border-gray-200 p-4 lg:p-8 h-64 lg:h-full overflow-y-auto">
+        <div className="mb-4 lg:mb-8">
+          <span className="text-[#FF4D00] font-mono text-xs tracking-widest uppercase mb-1 block">Real-time</span>
+          <h2 className="text-xl lg:text-3xl font-serif text-gray-900 leading-none">Active Conversations</h2>
         </div>
 
 
@@ -632,12 +649,12 @@ const ObserverView = ({
       {/* [FEATURE: CHAT_TRANSCRIPT] */}
       {/* Main Chat Area */}
       {/* [FEATURE: CHAT_TRANSCRIPT] */}
-      <div className="w-full lg:col-span-9 bg-white overflow-y-auto relative flex flex-col h-[60vh] lg:h-full border-b lg:border-b-0 border-gray-200">
+      <div className="w-full lg:col-span-8 bg-white overflow-y-auto relative flex flex-col h-[60vh] lg:h-full border-b lg:border-b-0 border-gray-200">
         {selectedConv ? (
           <div className="flex flex-col h-full p-4 lg:p-8">
             <div className="mb-4 lg:mb-8 text-center pb-4 lg:pb-8 border-b border-gray-100">
-              <h2 className="font-serif text-2xl lg:text-3xl mb-2">Transcript Protocol</h2>
-              <p className="font-mono text-[10px] lg:text-xs text-gray-400">SESSION ID: {selectedConv.id} • STARTED {selectedConv.startTime}</p>
+              <h2 className="font-serif text-2xl lg:text-3xl mb-2">Conversation</h2>
+              <p className="font-mono text-[10px] lg:text-xs text-gray-400">SESSION ID: {selectedConv.id} • Active now</p>
             </div>
 
             <div className="space-y-6 lg:space-y-8 flex-1">
@@ -660,7 +677,7 @@ const ObserverView = ({
                       {/* Metadata & Violation Indicators */}
                       <div className={`flex items-center gap-2 mb-2 ${msg.role === 'assistant' ? 'justify-start' : 'justify-end'}`}>
                         <div className="font-mono text-[10px] text-gray-400 uppercase tracking-wider">
-                          {msg.role} • {msg.timestamp}
+                          {msg.role === 'assistant' ? 'Your Chatbot' : 'Customer'} • {msg.timestamp}
                         </div>
                         {violatedPolicy && (
                           <button
@@ -723,8 +740,8 @@ const ObserverView = ({
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-6 text-gray-300">
               <MessageCircle size={32} />
             </div>
-            <h3 className="font-serif text-2xl text-gray-900 mb-2">No Session Selected</h3>
-            <p className="text-gray-500 max-w-sm">Select a live session from the sidebar to observe the conversation and view real-time fact checking.</p>
+            <h3 className="font-serif text-2xl text-gray-900 mb-2">Select a conversation to watch</h3>
+            <p className="text-gray-500 max-w-sm">Watch how your chatbot helps customers.</p>
           </div>
         )}
       </div>
@@ -821,19 +838,19 @@ const FactDatabaseView = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-8 py-12">
-      <div className="flex justify-between items-end mb-12">
+    <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 lg:py-12">
+      <div className="flex flex-col xl:flex-row xl:justify-between xl:items-end gap-6 mb-8 lg:mb-12">
         <div>
-          <span className="text-[#FF4D00] font-mono text-sm tracking-widest uppercase mb-2 block">Knowledge Base</span>
-          <h1 className="font-serif text-6xl text-gray-900 leading-none">The Ledger.</h1>
+          <span className="text-[#FF4D00] font-mono text-xs lg:text-sm tracking-widest uppercase mb-2 block">Knowledge Base</span>
+          <h1 className="font-serif text-4xl lg:text-5xl 2xl:text-6xl text-gray-900 leading-none">What Your Chatbot Knows</h1>
         </div>
-        <div className="flex gap-4">
-          <div className="relative">
+        <div className="flex gap-4 w-full xl:w-auto">
+          <div className="relative flex-1 xl:flex-none">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
             <input
               type="text"
-              placeholder="Search statements..."
-              className="pl-10 pr-4 py-2 bg-white border border-gray-200 focus:border-[#FF4D00] focus:outline-none w-64 text-sm transition-colors"
+              placeholder="Search..."
+              className="pl-10 pr-4 py-2 bg-white border border-gray-200 focus:border-[#FF4D00] focus:outline-none w-full xl:w-64 text-sm transition-colors"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -842,7 +859,7 @@ const FactDatabaseView = ({
             onClick={() => setShowAddModal(true)}
             className="bg-[#111] text-white px-6 py-2 text-sm font-medium hover:bg-[#FF4D00] transition-colors flex items-center gap-2"
           >
-            <Plus size={16} /> ADD ENTRY
+            <Plus size={16} /> Add Fact
           </button>
         </div>
       </div>
@@ -863,10 +880,8 @@ const FactDatabaseView = ({
           >
             <div>
               <div className="flex justify-between items-start mb-6">
-                <span className="font-mono text-xs text-gray-300 group-hover:text-[#FF4D00] transition-colors">#{fact.id.toUpperCase()}</span>
+                <span className="px-2 py-1 bg-gray-50 text-[10px] uppercase tracking-wider text-gray-500">{fact.category}</span>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-1 bg-gray-50 text-[10px] uppercase tracking-wider text-gray-500">{fact.category}</span>
-
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => onEdit(fact)}
@@ -890,18 +905,8 @@ const FactDatabaseView = ({
               </h3>
             </div>
 
-            <div className="space-y-3">
-              <div className="h-px w-full bg-gray-100 group-hover:bg-gray-200 transition-colors" />
-              <div className="flex justify-between items-end">
-                <div>
-                  <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Source</div>
-                  <div className="text-sm text-gray-900">{fact.source}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Update</div>
-                  <div className="text-sm text-gray-900">{fact.lastUpdated}</div>
-                </div>
-              </div>
+            <div className="pt-4 mt-auto border-t border-gray-100 group-hover:border-gray-200 transition-colors">
+              <span className="font-mono text-xs text-gray-300 group-hover:text-[#FF4D00] transition-colors">#{fact.id.toUpperCase()}</span>
             </div>
           </div>
         ))}
@@ -989,28 +994,28 @@ const SystemPromptView = ({
   return (
     <div className="max-w-4xl mx-auto p-8">
       <div className="mb-8">
-        <span className="text-xs font-bold uppercase tracking-widest text-[#FF4D00]">Prompt Engineering</span>
-        <h1 className="text-4xl font-serif text-gray-900 mt-2 mb-2">System Prompt.</h1>
+        <span className="text-xs font-bold uppercase tracking-widest text-[#FF4D00]">Your Chatbot's Voice</span>
+        <h1 className="text-4xl font-serif text-gray-900 mt-2 mb-2">How It Talks</h1>
         <p className="text-gray-500 text-sm max-w-xl">
-          Define your chatbot's personality, behavior, and knowledge. Use template variables to inject context dynamically.
+          Give your chatbot a personality that matches your business. Professional? Friendly? Technical? You decide.
         </p>
       </div>
 
       {/* Template Variables Reference */}
       <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-        <h3 className="text-sm font-bold text-gray-700 mb-2">Template Variables</h3>
+        <h3 className="text-sm font-bold text-gray-700 mb-2">Dynamic Info</h3>
         <div className="flex flex-wrap gap-2">
           <code className="bg-gray-100 text-[#FF4D00] px-2 py-1 rounded text-xs">{'{' + 'facts' + '}'}</code>
-          <span className="text-xs text-gray-500">Injected knowledge from Ledger</span>
+          <span className="text-xs text-gray-500">What it knows (from your Knowledge Base)</span>
           <code className="bg-gray-100 text-[#FF4D00] px-2 py-1 rounded text-xs">{'{' + 'constraints' + '}'}</code>
-          <span className="text-xs text-gray-500">Active safety constraints</span>
+          <span className="text-xs text-gray-500">What it must always/never say</span>
         </div>
       </div>
 
       {/* Editor */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="border-b border-gray-100 px-4 py-2 flex items-center justify-between bg-gray-50">
-          <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Prompt Editor</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Personality Editor</span>
           <div className="flex items-center gap-2">
             {success && (
               <span className="text-green-600 text-xs flex items-center gap-1">
@@ -1023,7 +1028,7 @@ const SystemPromptView = ({
               className="flex items-center gap-2 bg-black text-white px-4 py-1.5 text-sm font-medium hover:bg-[#FF4D00] transition-colors disabled:opacity-50"
             >
               {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-              Save Prompt
+              Save Changes
             </button>
           </div>
         </div>
@@ -1145,10 +1150,10 @@ const ConstraintsView = ({
     <div className="max-w-7xl mx-auto px-8 py-12">
       <div className="flex justify-between items-end mb-16">
         <div>
-          <span className="text-[#FF4D00] font-mono text-sm tracking-widest uppercase mb-2 block">Safety & Compliance</span>
-          <h1 className="font-serif text-6xl text-gray-900 leading-none">Constraints.</h1>
+          <span className="text-[#FF4D00] font-mono text-sm tracking-widest uppercase mb-2 block">Stay On Brand</span>
+          <h1 className="font-serif text-6xl text-gray-900 leading-none">Conversation Rules</h1>
           <p className="text-gray-500 max-w-xl text-lg mt-4">
-            Defining the boundaries of autonomous operation. These constraints are hard-coded into the inference pipeline.
+            Set boundaries so your chatbot stays on message and on brand. No surprises.
           </p>
         </div>
         <button
@@ -1156,17 +1161,17 @@ const ConstraintsView = ({
           className="bg-[#111] hover:bg-[#FF4D00] text-white px-6 py-2 text-sm font-medium transition-colors flex items-center gap-2"
         >
           {isAdding ? <X size={16} /> : <Plus size={16} />}
-          {isAdding ? 'CANCEL' : 'ADD CONSTRAINT'}
+          {isAdding ? 'CANCEL' : 'Add Rule'}
         </button>
       </div>
 
       {/* Add/Edit Form */}
       {isAdding && (
         <div className="mb-12 bg-white border border-gray-200 p-8 shadow-xl shadow-gray-200/50 animate-in slide-in-from-top-4 fade-in duration-300">
-          <h3 className="font-serif text-xl mb-6 text-gray-900">New Constraint</h3>
+          <h3 className="font-serif text-xl mb-6 text-gray-900">New Rule</h3>
           <div className="grid grid-cols-2 gap-6 mb-6">
             <div>
-              <label className="block text-xs font-mono text-gray-400 mb-2 uppercase">Constraint Name</label>
+              <label className="block text-xs font-mono text-gray-400 mb-2 uppercase">Rule Name</label>
               <input
                 type="text"
                 value={newConstraint.name}
@@ -1210,14 +1215,14 @@ const ConstraintsView = ({
               value={newConstraint.description}
               onChange={e => setNewConstraint({ ...newConstraint, description: e.target.value })}
               rows={3}
-              placeholder="Describe what the model should NOT do..."
+              placeholder="Describe what the model should NOT do... e.g. Never promise same-day delivery"
               className="w-full bg-gray-50 border border-gray-200 p-3 text-gray-900 focus:border-[#FF4D00] focus:outline-none transition-colors"
             />
           </div>
           <div className="flex justify-end gap-4">
             <button onClick={() => setIsAdding(false)} className="text-gray-500 hover:text-black text-sm px-4">Cancel</button>
             <button onClick={handleAddConstraint} className="bg-black text-white hover:bg-[#FF4D00] px-8 py-2 text-sm font-bold flex items-center gap-2 transition-colors">
-              <Save size={14} /> SAVE CONSTRAINT
+              <Save size={14} /> SAVE RULE
             </button>
           </div>
         </div>
@@ -1260,7 +1265,7 @@ const ConstraintsView = ({
               <div className="text-right hidden sm:block">
                 <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-1">Status</div>
                 <div className={`text-sm font-mono ${constraint.isActive ? 'text-gray-900' : 'text-gray-400'}`}>
-                  {constraint.isActive ? 'ENFORCED' : 'DISABLED'}
+                  {constraint.isActive ? 'Active' : 'Disabled'}
                 </div>
               </div>
 
@@ -1342,17 +1347,17 @@ const HistoryView = ({
     <div className="max-w-7xl mx-auto px-8 py-12">
       <div className="flex justify-between items-end mb-12">
         <div>
-          <span className="text-[#FF4D00] font-mono text-sm tracking-widest uppercase mb-2 block">Few-Shot Learning</span>
-          <h1 className="font-serif text-6xl text-gray-900 leading-none">Past Context.</h1>
+          <span className="text-[#FF4D00] font-mono text-sm tracking-widest uppercase mb-2 block">Teach By Example</span>
+          <h1 className="font-serif text-6xl text-gray-900 leading-none">Example Conversations</h1>
           <p className="text-gray-500 mt-4 max-w-2xl">
-            A repository of edge cases and specific business scenarios. The model uses these historical precedents to determine how to handle similar novel situations.
+            Show your chatbot how to handle tricky questions. Add examples of good responses so it learns your style.
           </p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
           className="bg-[#111] text-white px-6 py-2 text-sm font-medium hover:bg-[#FF4D00] transition-colors flex items-center gap-2"
         >
-          <Plus size={16} /> ADD EXAMPLE
+          <Plus size={16} /> Add Example
         </button>
       </div>
 
@@ -1397,14 +1402,14 @@ const HistoryView = ({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
-                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Scenario</span>
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Customer Might Ask...</span>
                 </div>
                 <p className="text-gray-900 font-serif text-lg leading-relaxed">"{item.scenario}"</p>
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#FF4D00]" />
-                  <span className="text-xs font-bold text-[#FF4D00] uppercase tracking-widest">Resolution / Context</span>
+                  <span className="text-xs font-bold text-[#FF4D00] uppercase tracking-widest">Your Chatbot Should Reply...</span>
                 </div>
                 <p className="text-gray-600 leading-relaxed">{item.response}</p>
               </div>
@@ -1504,7 +1509,7 @@ const AddFactModal = ({
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button onClick={onClose} className="px-4 py-2 text-sm text-gray-500 hover:text-black">Cancel</button>
-                <button onClick={handleManualSubmit} className="px-6 py-2 bg-black text-white text-sm font-medium hover:bg-[#FF4D00] transition-colors">Add to Ledger</button>
+                <button onClick={handleManualSubmit} className="px-6 py-2 bg-black text-white text-sm font-medium hover:bg-[#FF4D00] transition-colors">Add to Knowledge Base</button>
               </div>
             </div>
           ) : (
@@ -1569,7 +1574,7 @@ const AddHistoryModal = ({
           {activeTab === 'manual' ? (
             <div className="space-y-6">
               <div>
-                <label className="block text-xs font-mono text-gray-400 mb-2 uppercase">Scenario / User Inquiry</label>
+                <label className="block text-xs font-mono text-gray-400 mb-2 uppercase">Customer Question</label>
                 <input
                   className="w-full bg-gray-50 border border-gray-200 p-3 focus:border-[#FF4D00] outline-none text-gray-900 transition-colors"
                   value={newItem.scenario}
@@ -1578,7 +1583,7 @@ const AddHistoryModal = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-mono text-gray-400 mb-2 uppercase">Resolution / Context</label>
+                <label className="block text-xs font-mono text-gray-400 mb-2 uppercase">Ideal Answer</label>
                 <textarea
                   rows={3}
                   className="w-full bg-gray-50 border border-gray-200 p-3 focus:border-[#FF4D00] outline-none text-gray-900 transition-colors"
@@ -2041,6 +2046,14 @@ const AppContent = () => {
     }
   };
 
+
+  const [isCreatingChatbot, setIsCreatingChatbot] = useState(false);
+
+  const handleCreateChatbotRequest = () => {
+    setView('chatbots');
+    setIsCreatingChatbot(true);
+  };
+
   return (
     <div className="min-h-screen bg-[#F9F8F6] text-[#1A1A1A] flex flex-col lg:flex-row h-screen overflow-hidden">
       <MobileHeader
@@ -2050,10 +2063,11 @@ const AppContent = () => {
           if (view === 'observer') setSelectedConvId(null);
         }}
         setShowCreateOrgModal={setShowCreateOrgModal}
+        onCreateChatbot={handleCreateChatbotRequest}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 lg:h-screen lg:overflow-y-auto w-full animate-in fade-in duration-500 min-w-0 order-last lg:order-first">
+      <main className="flex-1 h-full lg:h-screen overflow-y-auto w-full animate-in fade-in duration-500 min-w-0 order-last lg:order-first">
         {currentView === 'observer' && (
           <ObserverView
             facts={facts}
@@ -2110,6 +2124,8 @@ const AppContent = () => {
           <ChatbotManager
             authToken={localStorage.getItem('token') || ''}
             onSelectChatbot={(chatbot) => console.log('Selected chatbot:', chatbot)}
+            startCreating={isCreatingChatbot}
+            onCloseCreate={() => setIsCreatingChatbot(false)}
           />
         )}
         {currentView === 'settings' && (
@@ -2119,6 +2135,8 @@ const AppContent = () => {
         )}
       </main>
 
+      <FloatingChatWidget />
+
       <RightPanel
         currentView={currentView}
         setView={(view) => {
@@ -2126,6 +2144,7 @@ const AppContent = () => {
           if (view === 'observer') setSelectedConvId(null);
         }}
         setShowCreateOrgModal={setShowCreateOrgModal}
+        onCreateChatbot={handleCreateChatbotRequest}
       />
 
       {editingFact && (

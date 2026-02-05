@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, createContext, useContext, ReactNode } from 'react';
 import { API_BASE } from '../services/api';
-import { Bot, ChevronDown, Check, Loader2 } from 'lucide-react';
+import { Bot, ChevronDown, Check, Loader2, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Types
@@ -8,6 +8,7 @@ interface Chatbot {
     id: string;
     name: string;
     description?: string;
+    preview_api_key?: string;
 }
 
 interface ChatbotContextType {
@@ -87,7 +88,7 @@ export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children, auth
 };
 
 // Dropdown Selector Component
-export const ChatbotSelector: React.FC = () => {
+export const ChatbotSelector: React.FC<{ onCreate?: () => void }> = ({ onCreate }) => {
     const { chatbots, selectedChatbot, setSelectedChatbot, loading } = useChatbot();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -124,34 +125,27 @@ export const ChatbotSelector: React.FC = () => {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg hover:border-[#FF4D00] transition-colors group"
+                className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-md hover:bg-gray-50 hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-[#FF4D00]/20"
             >
-                <Bot size={14} className="text-gray-500 group-hover:text-[#FF4D00]" />
-                <span className="text-sm font-medium text-gray-700 max-w-[150px] truncate">
-                    {selectedChatbot?.name || 'Select Chatbot'}
-                </span>
-                <ChevronDown
-                    size={14}
-                    className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-                />
+                <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
+                        <Bot size={12} className="text-gray-500" />
+                    </div>
+                    <span className="truncate">{selectedChatbot?.name || 'Select Chatbot'}</span>
+                </div>
+                <ChevronDown size={14} className={`text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.1 }}
+                        className="absolute left-0 top-full mt-2 w-full bg-white rounded-lg shadow-2xl border border-gray-100 z-50 overflow-hidden origin-top flex flex-col py-1"
                     >
-                        <div className="p-2 border-b border-gray-100 bg-gray-50">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2">
-                                Active Chatbot
-                            </p>
-                            <p className="text-[10px] text-gray-400 px-2">
-                                All data is scoped to this bot
-                            </p>
-                        </div>
+
                         <div className="max-h-64 overflow-y-auto py-1">
                             {chatbots.map((chatbot) => (
                                 <button
@@ -160,35 +154,40 @@ export const ChatbotSelector: React.FC = () => {
                                         setSelectedChatbot(chatbot);
                                         setIsOpen(false);
                                     }}
-                                    className={`w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 transition-colors ${selectedChatbot?.id === chatbot.id ? 'bg-orange-50' : ''
+                                    className={`w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors hover:bg-gray-50 ${selectedChatbot?.id === chatbot.id ? 'bg-[#FF4D00]/5 text-[#FF4D00] font-medium' : 'text-gray-700'
                                         }`}
                                 >
-                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedChatbot?.id === chatbot.id
-                                        ? 'bg-[#FF4D00] text-white'
-                                        : 'bg-gray-100 text-gray-500'
-                                        }`}>
-                                        <Bot size={14} />
-                                    </div>
-                                    <div className="flex-1 text-left">
-                                        <span className="text-sm font-medium text-gray-900 block truncate">
-                                            {chatbot.name}
-                                        </span>
-                                        {chatbot.description && (
-                                            <span className="text-xs text-gray-400 truncate block">
-                                                {chatbot.description}
-                                            </span>
-                                        )}
+                                    <div className="flex items-center gap-2 overflow-hidden">
+                                        <div className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 ${selectedChatbot?.id === chatbot.id ? 'bg-[#FF4D00]/10' : 'bg-gray-100'}`}>
+                                            <Bot size={12} className={selectedChatbot?.id === chatbot.id ? 'text-[#FF4D00]' : 'text-gray-400'} />
+                                        </div>
+                                        <span className="truncate">{chatbot.name}</span>
                                     </div>
                                     {selectedChatbot?.id === chatbot.id && (
-                                        <Check size={16} className="text-[#FF4D00] flex-shrink-0" />
+                                        <Check size={14} className="flex-shrink-0" />
                                     )}
                                 </button>
                             ))}
                         </div>
+
+
+                        {/* New Chatbot Button */}
+                        <div className="p-2 border-t border-gray-100 bg-gray-50">
+                            <button
+                                onClick={() => {
+                                    setIsOpen(false);
+                                    onCreate?.();
+                                }}
+                                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-black text-white text-xs font-bold uppercase tracking-wider rounded-md hover:bg-[#FF4D00] transition-colors"
+                            >
+                                <Plus size={12} />
+                                Create New Chatbot
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 };
 

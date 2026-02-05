@@ -36,6 +36,8 @@ interface ChatbotManagerProps {
     authToken: string;
     onSelectChatbot: (chatbot: Chatbot) => void;
     selectedChatbotId?: string;
+    startCreating?: boolean;
+    onCloseCreate?: () => void;
 }
 
 // API_BASE imported from services/api
@@ -55,11 +57,26 @@ const fetchWithAuth = async (url: string, token: string, options: RequestInit = 
 export const ChatbotManager: React.FC<ChatbotManagerProps> = ({
     authToken,
     onSelectChatbot,
-    selectedChatbotId
+    selectedChatbotId,
+    startCreating,
+    onCloseCreate
 }) => {
     const [chatbots, setChatbots] = useState<Chatbot[]>([]);
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
+
+    // Initial open if startCreating is true
+    useEffect(() => {
+        if (startCreating) {
+            setShowCreateModal(true);
+        }
+    }, [startCreating]);
+
+    // Handle modal close
+    const handleCloseCreate = () => {
+        setShowCreateModal(false);
+        onCloseCreate?.();
+    };
     const [editingChatbot, setEditingChatbot] = useState<Chatbot | null>(null);
     const [expandedBot, setExpandedBot] = useState<string | null>(null);
 
@@ -104,7 +121,7 @@ export const ChatbotManager: React.FC<ChatbotManagerProps> = ({
                 loadChatbots();
                 chatbotContext.refresh(); // Sync dropdown selector
                 chatbotContext.setSelectedChatbot(newBot); // Switch to new bot
-                setShowCreateModal(false);
+                handleCloseCreate();
             }
         } catch (err) {
             console.error('Failed to create chatbot:', err);
@@ -250,7 +267,7 @@ export const ChatbotManager: React.FC<ChatbotManagerProps> = ({
             {/* Create Modal */}
             <ChatbotModal
                 isOpen={showCreateModal}
-                onClose={() => setShowCreateModal(false)}
+                onClose={handleCloseCreate}
                 onSave={handleCreateChatbot}
                 title="Create New Chatbot"
             />

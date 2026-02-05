@@ -52,10 +52,10 @@ const LoginPage = () => {
 
     const getSubtitle = () => {
         switch (mode) {
-            case 'login': return 'Enter your credentials to access the console.';
-            case 'signup': return 'Join the governance protocol.';
+            case 'login': return 'Enter your credentials to continue.';
+            case 'signup': return 'Get started with Sklo.';
             case 'forgot': return 'Enter your email to receive a One-Time Password.';
-            case 'reset': return 'Check your email (or console) for the OTP.';
+            case 'reset': return 'Check your email for the OTP.';
         }
     };
 
@@ -235,19 +235,19 @@ const LoginPage = () => {
             <div className="hidden lg:flex w-1/2 bg-black text-white p-12 flex-col justify-between relative overflow-hidden">
                 <div className="z-10">
                     <div className="w-8 h-8 bg-white flex items-center justify-center rounded-sm mb-6">
-                        <span className="text-black font-serif font-bold text-lg">V</span>
+                        <span className="text-black font-serif font-bold text-lg">S</span>
                     </div>
                 </div>
 
                 <div className="z-10 max-w-md">
-                    <h2 className="font-serif text-5xl mb-6">Governance only works when it's absolute.</h2>
+                    <h2 className="font-serif text-5xl mb-6">Your 24/7 sales assistant, ready in minutes.</h2>
                     <p className="text-gray-400 font-mono text-sm leading-relaxed">
-                        The Veritas Protocol provides the necessary oversight for autonomous agents operating in high-stakes environments. Trust, but verify.
+                        Sklo builds chatbots that talk to customers, answer questions, and qualify leads - so you can focus on running your business.
                     </p>
                 </div>
 
                 <div className="z-10 font-mono text-xs text-gray-500">
-                    © 2026 SKLO INC. SYSTEM VERSION 2.1.0
+                    © 2026 Sklo
                 </div>
 
                 {/* Abstract Background Elements */}
@@ -449,7 +449,7 @@ const LoginPage = () => {
                                 className="w-full bg-black text-white py-4 text-xs font-bold uppercase tracking-widest hover:bg-[#FF4D00] transition-colors flex items-center justify-center gap-2"
                             >
                                 {loading && <Loader2 className="animate-spin" size={12} />}
-                                {mode === 'login' && 'Enter Console'}
+                                {mode === 'login' && 'Sign In'}
                                 {mode === 'signup' && 'Complete Registration'}
                                 {mode === 'forgot' && 'Send Reset Code'}
                                 {mode === 'reset' && 'Update Password'}
@@ -517,7 +517,7 @@ const LoginPage = () => {
                     <div className="mt-8 text-center flex flex-col gap-2">
                         {mode === 'login' && (
                             <button onClick={() => setMode('signup')} className="text-xs text-gray-400 hover:text-gray-900 transition-colors">
-                                Don't have an account? Request access
+                                Don't have an account? Sign up here
                             </button>
                         )}
                         {(mode === 'signup' || mode === 'forgot') && (

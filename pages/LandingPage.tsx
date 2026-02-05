@@ -18,19 +18,19 @@ const LandingPage = () => {
             <nav className="fixed w-full z-50 px-8 py-6 flex justify-between items-center backdrop-blur-sm bg-[#F9F8F6]/80">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-black flex items-center justify-center rounded-sm">
-                        <span className="text-white font-serif font-bold text-lg">V</span>
+                        <span className="text-white font-serif font-bold text-lg">S</span>
                     </div>
-                    <span className="text-xl font-serif tracking-tight font-bold">Veritas.</span>
+                    <span className="text-xl font-serif tracking-tight font-bold">Sklo.</span>
                 </div>
                 <div className="flex items-center gap-6">
                     <Link to="/login" className="text-sm font-medium uppercase tracking-widest hover:text-[#FF4D00] transition-colors">
-                        Login
+                        Sign In
                     </Link>
                     <Link
                         to="/login?mode=signup"
                         className="bg-black text-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider hover:bg-[#FF4D00] transition-colors rounded-sm"
                     >
-                        Get Access
+                        Get Started
                     </Link>
                 </div>
             </nav>
@@ -50,19 +50,19 @@ const LandingPage = () => {
                         </div>
 
                         <h1 className="font-serif text-6xl md:text-8xl leading-[0.9] mb-8">
-                            Truth in <br />
+                            Chatbots That Work <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900">
-                                Artificial Intelligence
+                                While You Don't
                             </span>
                         </h1>
 
                         <p className="text-lg text-gray-500 max-w-md mb-10 leading-relaxed">
-                            The governance layer for your AI agents. Monitor hallucinations, enforce brand constraints, and manage your ground truth ledger in real-time.
+                            Build a chatbot that answers customer questions, qualifies leads, and answers FAQs automatically. No coding required.
                         </p>
 
                         <div className="flex gap-4">
                             <Link to="/login" className="group flex items-center gap-3 bg-black text-white px-8 py-4 text-sm font-bold uppercase tracking-widest hover:bg-[#FF4D00] transition-all">
-                                Launch Console <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                Get Started <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </div>
                     </motion.div>
@@ -115,9 +115,9 @@ const LandingPage = () => {
             <section className="border-t border-gray-200 bg-white py-24 px-8 mt-20">
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
                     {[
-                        { icon: Database, title: "Immutable Ledger", desc: "Your ground truth database. Modifiable only by authorized humans." },
-                        { icon: Shield, title: "Policy Engine", desc: "Hard constraints that prevent your AI from going rogue." },
-                        { icon: CheckCircle, title: "Real-time Audits", desc: "Watch every conversation live with citations for every claim." }
+                        { icon: Database, title: "Your Knowledge Base", desc: "The facts and answers your chatbot should know. You control what it says." },
+                        { icon: Shield, title: "Conversation Rules", desc: "Set boundaries so your chatbot stays on message and on brand." },
+                        { icon: CheckCircle, title: "Live Conversation View", desc: "See how your chatbot helps customers in real-time. Jump in when needed." }
                     ].map((feature, i) => (
                         <div key={i} className="group">
                             <feature.icon className="w-10 h-10 mb-6 text-gray-300 group-hover:text-[#FF4D00] transition-colors" />
