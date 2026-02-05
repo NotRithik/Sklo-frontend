@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, RefreshCw } from 'lucide-react';
-import { useChatbot } from './ChatbotSelector';
+import { ChatbotContext } from './ChatbotSelector';
 import { AnimatePresence, motion } from 'framer-motion';
 import { API_BASE } from '../services/api';
 
@@ -11,8 +11,18 @@ interface Message {
     timestamp: Date;
 }
 
-export const FloatingChatWidget = () => {
-    const { selectedChatbot } = useChatbot();
+interface FloatingChatWidgetProps {
+    apiKey?: string;
+    botName?: string;
+}
+
+export const FloatingChatWidget = ({ apiKey, botName }: FloatingChatWidgetProps = {}) => {
+    const context = useContext(ChatbotContext);
+
+    const selectedChatbot = apiKey
+        ? { id: 'landing', name: botName || 'Sklo Bot', preview_api_key: apiKey }
+        : context?.selectedChatbot;
+
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');

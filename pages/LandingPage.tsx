@@ -1,12 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Shield, CheckCircle, Database } from 'lucide-react';
+import { ArrowRight, Shield, CheckCircle, Database, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { FloatingChatWidget } from '../components/FloatingChatWidget';
 
 const LandingPage = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
+    const arrowRef = useRef<HTMLDivElement>(null);
+    const [arrowRotation, setArrowRotation] = useState(90); // Default pointing down
+
+    useEffect(() => {
+        const updateRotation = () => {
+            if (!arrowRef.current) return;
+
+            const arrowRect = arrowRef.current.getBoundingClientRect();
+            const arrowCenterX = arrowRect.left + arrowRect.width / 2;
+            const arrowCenterY = arrowRect.top + arrowRect.height / 2;
+
+            // Widget is fixed at bottom-6 (24px) right-6 (24px)
+            // Button is w-14 (56px) h-14 (56px)
+            // Center is approx 24 + 28 = 52px from edges
+            const widgetCenterX = window.innerWidth - 52;
+            const widgetCenterY = window.innerHeight - 52;
+
+            const deltaX = widgetCenterX - arrowCenterX;
+            const deltaY = widgetCenterY - arrowCenterY;
+
+            // standard atan2 returns angle from X axis (Right)
+            // ArrowRight points Right by default, so 0deg is correct base
+            const angleRad = Math.atan2(deltaY, deltaX);
+            const angleDeg = angleRad * (180 / Math.PI);
+
+            setArrowRotation(angleDeg);
+        };
+
+        window.addEventListener('scroll', updateRotation);
+        window.addEventListener('resize', updateRotation);
+
+        // Update immediately and after a short delay to account for layout shifts
+        updateRotation();
+        setTimeout(updateRotation, 100);
+
+        return () => {
+            window.removeEventListener('scroll', updateRotation);
+            window.removeEventListener('resize', updateRotation);
+        };
+    }, []);
 
     if (isAuthenticated) {
         navigate('/dashboard');
@@ -71,42 +112,32 @@ const LandingPage = () => {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.4, duration: 0.8 }}
-                        className="relative"
+                        className="relative flex flex-col items-center justify-center text-center p-8"
                     >
-                        {/* Abstract UI Representation */}
-                        <div className="relative z-10 bg-white rounded-lg shadow-2xl border border-gray-100 p-6 overflow-hidden">
-                            <div className="border-b border-gray-100 pb-4 mb-4 flex justify-between items-center">
-                                <div className="flex gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                                    <div className="w-3 h-3 rounded-full bg-amber-400" />
-                                    <div className="w-3 h-3 rounded-full bg-green-400" />
-                                </div>
-                                <div className="font-mono text-[10px] text-gray-400">OBSERVER_MODE_ACTIVE</div>
-                            </div>
+                        <div className="relative z-10">
+                            <h3 className="font-serif text-3xl mb-4">Try it yourself</h3>
+                            <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+                                See how Sklo handles customer queries in real-time. Click the chat bubble below to start a conversation.
+                            </p>
 
-                            <div className="space-y-4 font-mono text-xs">
-                                <div className="flex gap-4">
-                                    <span className="text-gray-400 w-16 text-right">09:41:22</span>
-                                    <span className="text-[#FF4D00]">[ALERT]</span>
-                                    <span className="text-gray-800">Hallucination detected in session #4922</span>
-                                </div>
-                                <div className="flex gap-4">
-                                    <span className="text-gray-400 w-16 text-right">09:41:23</span>
-                                    <span className="text-blue-600">[ACTION]</span>
-                                    <span className="text-gray-800">Constraint "Brand Tone" enforced automatically.</span>
-                                </div>
-                                <div className="flex gap-4">
-                                    <span className="text-gray-400 w-16 text-right">09:41:25</span>
-                                    <span className="text-green-600">[VERIFY]</span>
-                                    <span className="text-gray-800">Fact retrieved from Ledger: "Product_ABV_6.5%"</span>
-                                </div>
-                            </div>
-
-                            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent opacity-50" />
+                            <motion.div
+                                ref={arrowRef}
+                                animate={{
+                                    y: [0, 10, 0],
+                                    rotate: arrowRotation
+                                }}
+                                transition={{
+                                    y: { repeat: Infinity, duration: 2 },
+                                    rotate: { type: "spring", stiffness: 50 }
+                                }}
+                                className="text-[#FF4D00] inline-block"
+                            >
+                                <ArrowRight className="w-8 h-8" />
+                            </motion.div>
                         </div>
 
-                        {/* Glowing Backdrop */}
-                        <div className="absolute -inset-4 bg-gradient-to-r from-orange-100 to-gray-200 blur-3xl -z-10 opacity-50" />
+                        {/* Glowing Background */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-orange-50 to-gray-50 blur-3xl -z-10 rounded-full opacity-70" />
                     </motion.div>
                 </div>
             </main>
@@ -127,6 +158,12 @@ const LandingPage = () => {
                     ))}
                 </div>
             </section>
+
+            {/* Landing Page Chatbot */}
+            <FloatingChatWidget
+                apiKey={import.meta.env.VITE_LANDING_CHATBOT_API_KEY}
+                botName="Sklo Assistant"
+            />
         </div>
     );
 };

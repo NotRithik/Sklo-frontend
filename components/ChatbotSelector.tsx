@@ -19,7 +19,7 @@ interface ChatbotContextType {
     refresh: () => void;
 }
 
-const ChatbotContext = createContext<ChatbotContextType | null>(null);
+export const ChatbotContext = createContext<ChatbotContextType | null>(null);
 
 export const useChatbot = () => {
     const context = useContext(ChatbotContext);
