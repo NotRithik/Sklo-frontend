@@ -43,8 +43,8 @@ const LoginPage = () => {
     // ... (helper functions getTitle, getSubtitle same as before) ...
     const getTitle = () => {
         switch (mode) {
-            case 'login': return 'Welcome back';
-            case 'signup': return 'Request Access';
+            case 'login': return 'Welcome Back';
+            case 'signup': return 'Get Instant Access';
             case 'forgot': return 'Forgot Password';
             case 'reset': return 'Reset Password';
         }
